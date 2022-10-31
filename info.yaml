@@ -5,9 +5,3 @@ developer: "by275"
 description': "로컬 폴더를 정적 웹으로 호스팅 하는 플러그인"
 home: "https://github.com/by275/static_host"
 more: "https://raw.githubusercontent.com/by275/static_host/main/README.md"
-
-require_plugin: ""
-require_os' : ""
-need_decrypt_code: false
-need_filesize_check': false
-filesize: 0

@@ -3,13 +3,13 @@
 <form id="add-rule" name="add-rule">
     {{ macros.setting_input_text_and_buttons('urlpath-input', 'URL Path', [['gen-random-path-btn', '랜덤 주소']], desc=['요청을 처리할 하위 경로']) }}
     {{ macros.setting_input_text('host', '호스트', value='', desc=['요청 헤더의 값과 일치할 때만 연결합니다. 비워두면 제한 없음.']) }}
-    {{ macros.setting_radio('auth-type', '인증', ['없음', 'SJVA auth', 'BasicAuth']) }}
+    {{ macros.setting_radio_with_value('auth-type', '인증', [['none', '없음'], ['ff', 'FF auth'], ['basic', 'BasicAuth']], value='ff') }}
     <div id="basic-auth-div" class="collapse">
         {{ macros.setting_input_text('username', 'USER', value='', col='3') }}
         {{ macros.setting_input_text('password', 'PASS', value='', col='3', type='password') }}
     </div>
     {{ macros.setting_input_text_and_buttons('target', '연결 대상', [['find-target-btn', '찾기']], desc=['로컬 경로(/로 시작) 혹은 redirect URL(http로 시작)']) }}
-    {{ macros.setting_button([['add-rule-btn', '추가하기']]) }}
+    {{ macros.setting_buttons([['add-rule-btn', '추가하기']]) }}
 </form>
 
 <div class="mt-3 d-flex w-100 justify-content-between">
@@ -176,7 +176,7 @@
             type: "POST",
             cache: false,
             dataType: "json",
-            data: get_formdata('#add-rule'),
+            data: getFormdata('#add-rule'),
             success: function(data) {
                 if (data.success) {
                     render_single_item(data.ret);
@@ -222,11 +222,11 @@
         `;
         template_clone.querySelector("#creation-date").title = data.creation_date;
         template_clone.querySelector("#creation-date").innerHTML = datetimeFormat.format(datetime);
-        if (data.auth_type == 0) {
+        if (data.auth_type == 'none') {
             var auth_name = '없음';
-        } else if (data.auth_type == 1) {
+        } else if (data.auth_type == 'ff') {
             var auth_name = 'Default'
-        } else if (data.auth_type == 2) {
+        } else if (data.auth_type == 'basic') {
             var auth_name = 'Basic'
         }
         template_clone.querySelector("#other-details").innerHTML = `
@@ -277,7 +277,7 @@
 
     $("body").on('click', '#find-target-btn', function(e){
         e.preventDefault();
-        m_select_local_file_modal("연결 대상 선택", '/', false, function(result){
+        globalSelectLocalFile("연결 대상 선택", '/', function(result){
             document.getElementById("target").value = result;
             document.querySelector('#target').dispatchEvent(new Event('change', {}));
         });
