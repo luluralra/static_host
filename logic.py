@@ -3,12 +3,13 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
-from flask import (abort, jsonify, redirect, render_template, request,
-                   send_file, send_from_directory)
+from flask import abort, jsonify, redirect, render_template, request, send_file, send_from_directory
 from flask.views import View
 from flask_login import login_required
+
 # pylint: disable=import-error
 from plugin import PluginModuleBase
+
 # third-party
 from werkzeug.exceptions import NotFound
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -17,7 +18,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from .logic_auth import HTTPBasicAuth
 from .setup import F, P
 
-#from .plugin import plugin
+# from .plugin import plugin
 plugin = P
 logger = plugin.logger
 package_name = plugin.package_name
@@ -87,7 +88,7 @@ class LogicMain(PluginModuleBase):
                 # AssertionError: The setup method 'add_url_rule' can no longer be called on the application. It has already handled its first request, any changes will not be applied consistently. Make sure all imports, decorators, functions, etc. needed to set up the application are done before running it.
                 # 구동 이후에 add_url_rule 에러 발생.
                 # 최대한 체크한 후 재시작하라고 해야 할 것 같습니다.
-                #LogicMain.register_rules({urlpath: new_rule})
+                # LogicMain.register_rules({urlpath: new_rule})
 
                 drules = json.loads(ModelSetting.get("rules"))
                 drules.update({urlpath: new_rule})
@@ -148,9 +149,9 @@ class LogicMain(PluginModuleBase):
                 view_func = FileView.as_view(view_name, target, host)
             else:
                 view_func = StaticView.as_view(view_name, target, host)
-            if atype == 'ff':
+            if atype == "ff":
                 view_func = login_required(view_func)
-            elif atype == 'basic':
+            elif atype == "basic":
                 basicauth = LogicMain.get_basicauth({v["username"]: v["password"]})
                 view_func = basicauth.login_required(view_func)
             if Path(target).is_dir():
