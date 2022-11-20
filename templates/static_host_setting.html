@@ -183,7 +183,7 @@
                     current_rule_size += 1;
                     counter += 1;
                     loaded.innerText = `${counter}/${current_rule_size}`;
-                    $.notify('<strong>추가하였습니다.</strong>', {
+                    $.notify('<strong>추가하였습니다.</strong><br>재시작 후 적용됩니다.', {
                         type: 'success'
                     });
                     // reset form
@@ -225,7 +225,7 @@
         if (data.auth_type == 'none') {
             var auth_name = '없음';
         } else if (data.auth_type == 'ff') {
-            var auth_name = 'Default'
+            var auth_name = 'FF'
         } else if (data.auth_type == 'basic') {
             var auth_name = 'Basic'
         }

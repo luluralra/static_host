@@ -32,7 +32,7 @@ class LogicMain(PluginModuleBase):
                 f"/{package_name}/example": {
                     "location_path": f"/{package_name}/example",
                     "www_root": str(Path(__file__).resolve().parent.joinpath("example")),
-                    "auth_type": 0,
+                    "auth_type": "none",
                     "creation_date": datetime.now().isoformat(),
                 }
             }
