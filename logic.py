@@ -44,7 +44,9 @@ class LogicMain(PluginModuleBase):
 
     def plugin_load(self):
         try:
-            LogicMain.register_rules(json.loads(ModelSetting.get("rules")))
+            rules = json.loads(ModelSetting.get("rules"))
+            LogicMain.register_rules(rules)
+            ModelSetting.set("rules", json.dumps(rules))
         except Exception as e:
             logger.error("Exception:%s", e)
             logger.error(traceback.format_exc())
@@ -88,7 +90,9 @@ class LogicMain(PluginModuleBase):
                 # AssertionError: The setup method 'add_url_rule' can no longer be called on the application. It has already handled its first request, any changes will not be applied consistently. Make sure all imports, decorators, functions, etc. needed to set up the application are done before running it.
                 # 구동 이후에 add_url_rule 에러 발생.
                 # 최대한 체크한 후 재시작하라고 해야 할 것 같습니다.
-                # LogicMain.register_rules({urlpath: new_rule})
+
+                # 위와 같이 최근 flask 버전부터 app.run() 이후의 add_url_rule에 에러가 발생
+                # 우선 db에 쓰고 재시작 후에 ui로 피드백
 
                 drules = json.loads(ModelSetting.get("rules"))
                 drules.update({urlpath: new_rule})
@@ -108,7 +112,7 @@ class LogicMain(PluginModuleBase):
                 if act:
                     ModelSetting.set("rules", json.dumps(drules))
 
-                lrules = [val for _, val in iter(drules.items())]
+                lrules = drules.values()
                 if ret == "count":
                     return jsonify({"success": True, "ret": len(lrules)})
                 if ret == "list":
@@ -135,30 +139,41 @@ class LogicMain(PluginModuleBase):
             return jsonify({"success": False, "log": str(e)})
 
     @staticmethod
-    def register_rules(drules):
-        for _, v in iter(drules.items()):
-            urlpath = v["location_path"].rstrip("/")
-            target = v["www_root"]
-            host = v.get("host", "")
-            atype = v["auth_type"]
-            view_name = str(urlpath.lstrip("/").replace("/", "-"))
-            # view_name = str(lpath)
-            if target.startswith(("https://", "http://")):
-                view_func = RedirectView.as_view(view_name, target, host)
-            elif Path(target).is_file():
-                view_func = FileView.as_view(view_name, target, host)
+    def register_rules(rules: dict):
+        for urlpath, rule in rules.items():
+            try:
+                logger.debug("registering rule for urlpath '%s'", urlpath)
+                LogicMain.register_rule(rule)
+            except Exception:
+                logger.exception("exception while registering rule for urlpath '%s' with %s:", urlpath, rule)
+                rule["status"] = "error"
             else:
-                view_func = StaticView.as_view(view_name, target, host)
-            if atype == "ff":
-                view_func = login_required(view_func)
-            elif atype == "basic":
-                basicauth = LogicMain.get_basicauth({v["username"]: v["password"]})
-                view_func = basicauth.login_required(view_func)
-            if Path(target).is_dir():
-                F.app.add_url_rule(urlpath + "/<path:path>", view_func=view_func)
-                F.app.add_url_rule(urlpath + "/", view_func=view_func)
-            else:
-                F.app.add_url_rule(urlpath, view_func=view_func)
+                rule["status"] = "success"
+
+    @staticmethod
+    def register_rule(v: dict) -> None:
+        urlpath = v["location_path"].rstrip("/")
+        target = v["www_root"]
+        host = v.get("host", "")
+        atype = v["auth_type"]
+        view_name = str(urlpath.lstrip("/").replace("/", "-"))
+        # view_name = str(lpath)
+        if target.startswith(("https://", "http://")):
+            view_func = RedirectView.as_view(view_name, target, host)
+        elif Path(target).is_file():
+            view_func = FileView.as_view(view_name, target, host)
+        else:
+            view_func = StaticView.as_view(view_name, target, host)
+        if atype == "ff":
+            view_func = login_required(view_func)
+        elif atype == "basic":
+            basicauth = LogicMain.get_basicauth({v["username"]: v["password"]})
+            view_func = basicauth.login_required(view_func)
+        if Path(target).is_dir():
+            F.app.add_url_rule(urlpath + "/<path:path>", view_func=view_func)
+            F.app.add_url_rule(urlpath + "/", view_func=view_func)
+        else:
+            F.app.add_url_rule(urlpath, view_func=view_func)
 
     @staticmethod
     def check_urlpath(urlpath: str):

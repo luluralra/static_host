@@ -234,6 +234,11 @@
             <span class="text-muted">호스트: ${data.host ? data.host : '제한 없음'}</span>
             <span class="text-muted ml-2">인증: ${auth_name}</span>
         `;
+        if (data.status == 'success') {
+            template_clone.querySelectorAll('div')[1].classList.add("border-primary");
+        } else if (data.status == 'error') {
+            template_clone.querySelectorAll('div')[1].classList.add("border-danger");
+        }
 
         // Append template to dom
         if (newly_added) {
