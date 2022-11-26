@@ -3,22 +3,19 @@ import traceback
 from datetime import datetime
 from pathlib import Path
 
-from flask import abort, jsonify, redirect, render_template, request, send_file, send_from_directory
-from flask.views import View
-from flask_login import login_required
-
-# pylint: disable=import-error
-from plugin import PluginModuleBase
-
 # third-party
+from flask import abort, jsonify, redirect, render_template, request, send_file, send_from_directory, views
 from werkzeug.exceptions import NotFound
 from werkzeug.security import check_password_hash, generate_password_hash
 
+# pylint: disable=import-error
+from plugin import PluginModuleBase, F
+from flask_login import login_required
+
 # local
 from .logic_auth import HTTPBasicAuth
-from .setup import F, P
+from .setup import P
 
-# from .plugin import plugin
 plugin = P
 logger = plugin.logger
 package_name = plugin.package_name
@@ -39,8 +36,8 @@ class LogicMain(PluginModuleBase):
         ),
     }
 
-    def __init__(self, P):
-        super().__init__(P, None)
+    def __init__(self, PM):
+        super().__init__(PM, None)
 
     def plugin_load(self):
         try:
@@ -205,7 +202,7 @@ class LogicMain(PluginModuleBase):
         return basicauth
 
 
-class StaticView(View):
+class StaticView(views.View):
     methods = ["GET"]
 
     def __init__(self, dirpath: str, host: str):
@@ -228,7 +225,7 @@ class StaticView(View):
             raise e
 
 
-class RedirectView(View):
+class RedirectView(views.View):
     methods = ["GET"]
 
     def __init__(self, redirect_url: str, host: str):
@@ -241,7 +238,7 @@ class RedirectView(View):
         return redirect(self.redirect_url)
 
 
-class FileView(View):
+class FileView(views.View):
     methods = ["GET"]
 
     def __init__(self, filepath: str, host: str):

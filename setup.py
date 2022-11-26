@@ -23,7 +23,8 @@ setting = {
     "default_route": "single",
 }
 
-from plugin import *
+# pylint: disable=import-error
+from plugin import create_plugin_instance
 
 P = create_plugin_instance(setting)
 
