@@ -1,5 +1,4 @@
 import json
-import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -44,9 +43,8 @@ class LogicMain(PluginModuleBase):
             rules = json.loads(ModelSetting.get("rules"))
             LogicMain.register_rules(rules)
             ModelSetting.set("rules", json.dumps(rules))
-        except Exception as e:
-            logger.error("Exception:%s", e)
-            logger.error(traceback.format_exc())
+        except Exception:
+            logger.exception("Exception while registering rules:")
 
     def process_menu(self, sub, req):
         arg = ModelSetting.to_dict()
@@ -131,8 +129,7 @@ class LogicMain(PluginModuleBase):
                 )
             raise NotImplementedError(f"Unknown sub type: {sub}")
         except Exception as e:
-            logger.error("Exception:%s", e)
-            logger.error(traceback.format_exc())
+            logger.exception("Exception while processing ajax requests:")
             return jsonify({"success": False, "log": str(e)})
 
     @staticmethod
