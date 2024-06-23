@@ -1,5 +1,5 @@
 title: "정적 호스트"
-version: "0.3.1"
+version: "0.3.2"
 package_name: "static_host"
 developer: "by275"
 description: "정적 웹을 호스팅 하는 플러그인"

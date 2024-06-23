@@ -2,16 +2,12 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-# third-party
 from flask import abort, jsonify, redirect, render_template, request, send_file, send_from_directory, views
+from flask_login import login_required
+from plugin import F, PluginModuleBase  # pylint: disable=import-error
 from werkzeug.exceptions import NotFound
 from werkzeug.security import check_password_hash, generate_password_hash
 
-# pylint: disable=import-error
-from plugin import PluginModuleBase, F
-from flask_login import login_required
-
-# local
 from .logic_auth import HTTPBasicAuth
 from .setup import P
 
@@ -47,6 +43,7 @@ class LogicMain(PluginModuleBase):
             logger.exception("Exception while registering rules:")
 
     def process_menu(self, sub, req):
+        _ = req
         arg = ModelSetting.to_dict()
         if sub == "setting":
             arg["package_name"] = package_name
