@@ -209,13 +209,13 @@ class StaticView(views.View):
         try:
             if path == "favicon.ico":
                 return send_from_directory(self.dirpath, path, mimetype="image/vnd.microsoft.icon")
-            return send_from_directory(self.dirpath, path)
+            return send_from_directory(self.dirpath, path, mimetype="application/json")
         except NotFound as e:
             current_root = self.dirpath.joinpath(path)
             if current_root.is_dir() and not path.endswith("/"):
                 return redirect(path + "/", code=301)
             if path.endswith("/"):
-                return send_from_directory(current_root, "index.html")
+                return send_from_directory(current_root, "index.html", mimetype="application/json")
             raise e
 
 
