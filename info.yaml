@@ -1,6 +1,6 @@
 title: "정적 호스트"
 version: "0.3.3"
-package_name: "static_host_json"
+package_name: "static_host"
 developer: "lululala"
 description: "정적 웹을 호스팅 하는 플러그인"
 home: "https://github.com/luluralra/static_host"
